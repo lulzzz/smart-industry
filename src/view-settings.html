@@ -1,5 +1,10 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="view-index.html">
+<link rel="import" href="lazy-loader.html">
 <link rel="import" href="shared-styles.html">
 <dom-module id="view-settings">
   <template>
@@ -101,9 +106,12 @@
     <paper-toast id="toastAlert" always-on-top horizontal-align="right" text="{{localize(alertText)}}"></paper-toast>
   </template>
   <script>
-    Polymer({
-      is: 'view-settings',
-      properties: {
+    class ViewSettings extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior], Polymer.Element) {
+
+      static get is() { return 'view-settings'; }
+
+      static get properties() {
+        return {
         language: {
           type: Object,
           observer: '_changeLanguage',
@@ -144,13 +152,13 @@
             ]
           }
         },
-      },
-      behaviors: [
-        Polymer.AppLocalizeBehavior
-      ],
+       };
+      }
+    
       attached() {
+        super.attached();
         this.loadResources(this.resolveUrl('../data/locales.json'));
-      },
+      }
 
       verifyStatus(status) {
         if (status) {
@@ -158,7 +166,7 @@
         } else {
           return 'not-verify'
         }
-      },
+      }
 
       _changeLanguage() {
         let selectedLang = this.$.languageSelector.value;
@@ -166,7 +174,7 @@
           selectedLang === "rs") {
           this.language = selectedLang;
         }
-      },
+      }
 
       _changeAutoBackup() {
         this.autobackup = this.$.autobackupSwitch.checked ? 'true' : 'false';
@@ -177,7 +185,7 @@
           this.alertText = 'notification-alert-off';
           this.$.toastAlert.open();
         }
-      },
+      }
 
       _changeNotification() {
         this.notification = this.$.notificationSwitch.checked ? 'true' : 'false';
@@ -188,7 +196,7 @@
           this.alertText = 'notification-alert-off';
           this.$.toastAlert.open();
         }
-      },
+      }
 
       _verifyAccount() {
         this.user.sendEmailVerification()
@@ -198,7 +206,7 @@
           .catch(error => {
             alert("Error: " + error.message);
           });
-      },
+      }
 
       _saveSettings() {
         let displayname = this.$.displayName.value;
@@ -218,7 +226,7 @@
         if (this.$.uploadImageFile.files.length > 0) {
           this.uploadProfileImage();
         }
-      },
+      }
 
       uploadProfileImage() {
         let file = this.$.uploadImageFile.files[0];
@@ -271,7 +279,7 @@
               console.log(error);
             });
           });
-      },
+      }
 
       _deleteProfileImage() {
         if (this.user.photoURL !== "") {
@@ -290,7 +298,7 @@
         } else {
           alert("No image profile to delete");
         }
-      },
+      }
 
       _createUserWithEmailAndPassword() {
         this.error = null;
@@ -313,7 +321,7 @@
               // An error happened.
               console.log(error);
             });
-      },
+      }
 
       _changeAuthen() {
         let currentpassword = this.$.currentPassword.value;
@@ -342,7 +350,7 @@
               alert("Error: " + error.message);
             });
         }
-      },
+      }
 
       _reauthenAccount(currentpassword) {
         let credential = firebase.auth.EmailAuthProvider.credential(this.user.email, currentpassword);
@@ -355,7 +363,7 @@
             return false;
           });
       }
-
-    });
+    }
+      window.customElements.define(ViewSettings.is , ViewSettings);
   </script>
 </dom-module>

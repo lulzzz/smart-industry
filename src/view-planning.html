@@ -1,4 +1,4 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="view-index.html">
 <link rel="import" href="plan/view-plan-scheduling.html">
 <link rel="import" href="plan/view-plan-order.html">
@@ -31,24 +31,10 @@
         </app-header-layout>  
   </template>
   <script>
-    Polymer({
-      is: 'view-planning',
-      properties: {
-         language: {
-          type: Object,
-          notify: true,
-          value: function () {
-            if(localStorage.getItem("lang") != null) {
-              return localStorage.getItem("lang");
-            } 
-            else if(localStorage.getItem("lang") == null) {
-              return "en";
-            } 
-            else {
-              return this.language;
-            }
-          }
-        },
+    class ViewPlan extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior], Polymer.Element) {
+      static get is() { return 'view-planning'; }
+      static get properties() {
+        return {
         tabs: {
           type: String,
           reflectToAttribute: true,
@@ -57,7 +43,7 @@
         },
         submenus: {
           type: Array,
-          value: function () {
+          value() {
             return [{
                 'title': 'production',
                 'view': 'production',
@@ -76,17 +62,29 @@
             ];
           }
         }
-      },
-      behaviors: [
-        Polymer.AppLocalizeBehavior
-      ],
-      attached: function() {
-        this.loadResources(this.resolveUrl('../data/locales.json'));
-      },
-      _tabsChanged: function (tabs) {
-        let resolvedTabsUrl = this.resolveUrl('plan/view-plan-' + tabs + '.html');
-        this.importHref(resolvedTabsUrl, null, null, true); 
+      };
       }
-    });
+
+      static get observers() {
+        return [
+          '_routeTabsChanged(tabs)',
+        ];
+      }
+
+      attached() {
+        this.loadResources(this.resolveUrl('../data/locales.json'));
+      }
+
+      _routeTabsChanged(tab) {
+        if (tab === undefined) return;
+      }
+
+      _tabsChanged(tabs) {
+        let resolvedTabsUrl = this.resolveUrl('plan/view-plan-' + tabs + '.html');
+        Polymer.importHref(resolvedTabsUrl, null, null, true); 
+      }
+      
+    }
+     window.customElements.define(ViewPlan.is, ViewPlan);
   </script>
 </dom-module>

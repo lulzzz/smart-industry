@@ -1,4 +1,6 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="view-index.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="app-language-behavior.html">
@@ -14,7 +16,6 @@
         --app-grid-item-height: 50%;
       }
     </style>
-    <firebase-document app-name="smart-mes" id="appLanguage" path="/metadata/appLanguage" data="{{language}}"></firebase-document>
     <app-localstorage-document key="lang" data="{{language}}"></app-localstorage-document>
     <app-header-layout fullbleed has-scrolling-region class="subheader-layout">
       <app-header fixed shadow>
@@ -35,10 +36,8 @@
     </app-header-layout>
   </template>
   <script>
-    class ViewDashboard extends Polymer.Element {
-      static get is() {
-        return 'view-dashboard';
-      }
+    class ViewDashboard extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior], Polymer.Element) {
+      static get is() {  return 'view-dashboard'; }
 
       static get properties() {
         return {
@@ -50,7 +49,7 @@
           },
           submenus: {
             type: Array,
-            value: function () {
+            value() {
               return [{
                   'title': 'overview',
                   'view': 'overview',
@@ -71,21 +70,15 @@
           }
         };
       }
-
-      static get behaviors() {
-        return [
-          Polymer.AppLocalizeBehavior,
-          Polymer.AppLanguageBehavior
-        ];
-      }
-
+      
       attached() {
+        super.attached();
         this.loadResources(this.resolveUrl('../data/locales.json'));
       }
 
       _tabsChanged(tabs) {
         let resolvedTabsUrl = this.resolveUrl('dashboard/view-dashboard-' + tabs + '.html');
-        this.importHref(resolvedTabsUrl, null, null, true);
+        Polymer.importHref(resolvedTabsUrl, null, null, true);
       }
     }
     window.customElements.define(ViewDashboard.is, ViewDashboard);

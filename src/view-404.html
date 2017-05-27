@@ -59,15 +59,9 @@
         </div>
     </template>
     <script>
-        class View404 extends Polymer.Element {
+        class View404 extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior], Polymer.Element)  {
             static get is() {
                 return 'view-404';
-            }
-            static get behaviors() {
-                return [
-                    Polymer.AppLocalizeBehavior,
-                    Polymer.AppLanguageBehavior
-                ];
             }
             attached() {
                 this.loadResources(this.resolveUrl('../data/locales.json'));

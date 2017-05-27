@@ -246,24 +246,31 @@
         </iron-pages>
       </app-header-layout>
     </app-drawer-layout>
-    <iron-media-query query="min-width: 600px" query-matches="{{wideLayout}}"></iron-media-query>
   </template>
   <script>
-    class ViewIndex extends Polymer.Element {
-      static get is() {
-        return 'view-index';
-      }
+    class ViewIndex extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior], Polymer.Element) {
+      static get is() { return 'view-index'; }
       static get properties() {
         return {
+          language: {
+          type: Object,
+          notify: true,
+          value() {
+            if(localStorage.getItem("lang") != null) {
+              return localStorage.getItem("lang");
+            } 
+            else if(localStorage.getItem("lang") == null) {
+              return "en";
+            } 
+            else {
+              return this.language;
+            }  
+          }
+         },
           page: {
             type: String,
             reflectToAttribute: true,
-            observer: '_pageChanged'
-          },
-          wideLayout: {
-            type: Boolean,
-            value: false,
-            observer: '_onLayoutChange',
+            observer: '_pageChanged',
           },
           notification: Boolean,
           user: Object,
@@ -272,19 +279,13 @@
           rootPattern: String,
           routeData: Object,
           subroute: String,
+          route: Object
         };
       }
 
       static get observers() {
         return [
           '_routePageChanged(routeData.page)',
-        ];
-      }
-
-      static get behaviors() {
-        return [
-          Polymer.AppLocalizeBehavior,
-          Polymer.AppLanguageBehavior
         ];
       }
 
@@ -297,6 +298,7 @@
       }
 
       attached() {
+        super.attached();
         if (!this.authen) {
           this.set('route.path', 'login');
         }
@@ -304,15 +306,6 @@
           this.set('route.path', '/');
         }
         this.loadResources(this.resolveUrl('../data/locales.json'));
-      }
-
-      ready() {
-        this.async(function () {
-          // If the path is blank, redirect to /
-          if (!this.route.path) {
-            this.set('route.path', '/');
-          }
-        });
       }
 
       _onLayoutChange(wide) {
@@ -328,7 +321,7 @@
 
       _pageChanged(page) {
         let resolvedPageUrl = this.resolveUrl('view-' + page + '.html');
-        Polymeer.importHref(
+        Polymer.importHref(
           resolvedPageUrl,
           null,
           this._showPage404.bind(this),
@@ -345,7 +338,7 @@
           .then(() => {
             this.authen = false;
             //redirect to login page    
-            this.async(function () {
+            this.async(()=> {
               this.set('route.path', 'login');
             }, 500);
             console.info("Logout successful");
@@ -378,6 +371,6 @@
       messagingSenderId: "253401775445",
     };
     firebase.initializeApp(config);
-    window.customerElements.define(ViewIndex.is, ViewIndex);
+    window.customElements.define(ViewIndex.is, ViewIndex);
   </script>
 </dom-module>

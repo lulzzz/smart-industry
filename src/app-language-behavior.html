@@ -10,7 +10,7 @@ Polymer.AppLanguageBehavior = {
        language: {
           type: Object,
           notify: true,
-          value: function () {
+          value() {
             if(localStorage.getItem("lang") != null) {
               return localStorage.getItem("lang");
             } 
@@ -21,7 +21,7 @@ Polymer.AppLanguageBehavior = {
               return this.language;
             }
           }
-        },
-    }
+      },
+  }
 }
 </script>

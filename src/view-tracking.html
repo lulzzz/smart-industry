@@ -30,9 +30,10 @@
         </app-header-layout>  
   </template>
   <script>
-    Polymer({
-      is: 'view-tracking',
-      properties: {
+    class ViewTrack extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior], Polymer.Element) {
+      static get is() { return 'view-tracking'; }
+      static get properties() {
+        return {
         tabs: {
           type: String,
           reflectToAttribute: true,
@@ -41,7 +42,7 @@
         },
         submenus: {
           type: Array,
-          value: function () {
+          value() {
             return [{
                 'title': 'PRODUCTION',
                 'view': 'production',
@@ -60,12 +61,14 @@
             ];
           }
         }
-      },
-
-      _tabsChanged: function (tabs) {
-        let resolvedTabsUrl = this.resolveUrl('track/view-track-' + tabs + '.html');
-        this.importHref(resolvedTabsUrl, null, null, true);
+        };
       }
-    });
+
+      _tabsChanged(tabs) {
+        let resolvedTabsUrl = this.resolveUrl('track/view-track-' + tabs + '.html');
+        Polymer.importHref(resolvedTabsUrl, null, null, true);
+      }
+    }
+     window.customElements.define(ViewTrack.is, ViewTrack);
   </script>
 </dom-module>

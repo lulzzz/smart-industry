@@ -1,11 +1,14 @@
 <link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror/app-indexeddb-mirror.html">
 <link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
-<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
 <link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="app-language-behavior.html">
 <link rel="import" href="shared-styles.html">
 <dom-module id="view-login">
   <template>
@@ -109,6 +112,7 @@
     <firebase-auth app-name="smart-mes" id="auth" user="{{user}}" on-error="handleError"></firebase-auth>
     <app-localstorage-document key="session" data="{{remember}}"></app-localstorage-document>
     <app-localstorage-document key="authen" data="{{authen}}"></app-localstorage-document>
+    <app-localstorage-document key="lang" data="{{language}}"></app-localstorage-document>
     <section class="container">
       <div class="flex-layout left-half">
         <article>
@@ -145,10 +149,9 @@
     </section>
   </template>
   <script>
-    class ViewLogin extends Polymer.Element {
+    class ViewLogin extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior, Polymer.IronA11yKeysBehavior], Polymer.Element) {
 
       static get is() { return 'view-login'; }
-
       static get properties() {
         return {
         email: {
@@ -175,8 +178,14 @@
        };
       }
 
+      attached() {
+        super.attached();
+        this.loadResources(this.resolveUrl('../data/locales.json'));
+      }
+
       ready() {
-          this.target = this.$.passwd;
+         super.ready();
+         this.target = this.$.passwd;
       }
 
       _login() {
@@ -187,7 +196,7 @@
           this.$.auth.signInWithEmailAndPassword(email, passwd)
             .then((response) => {
               this.authen = true;
-              this.async(function() {   
+              this.async(()=> {   
                 this.set('route.path', '../dashboard');
                }, 500);
             })
