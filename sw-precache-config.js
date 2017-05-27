@@ -18,6 +18,7 @@ module.exports = {
     '/images/*',
     '/data/*',
     '/js/*',
+    '/lib/*',
     '/src/*',
   ],
   navigateFallback: '/index.html',

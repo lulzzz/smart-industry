@@ -1,4 +1,4 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <!-- app modules - used for core functions -->
 <link rel="import" href="../bower_components/app-layout/app-layout.html">
 <link rel="import" href="../bower_components/app-localize-behavior/app-localize-behavior.html">
@@ -41,7 +41,6 @@
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../bower_components/paper-time-input/paper-time-input.html">
 <link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../bower_components/paper-swatch-picker/paper-swatch-picker.html">
 <!-- neon modules - used for animation -->
@@ -49,7 +48,6 @@
 <!-- 3rd party modules -->
 <link rel="import" href="../bower_components/polymer-redux/polymer-redux.html">
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
-<link rel="import" href="../bower_components/material-progress/material-progress.html">
 <link rel="import" href="../bower_components/vaadin-core-elements/vaadin-core-elements.html">
 <link rel="import" href="../bower_components/vaadin-charts/vaadin-charts.html">
 <link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
@@ -65,6 +63,13 @@
 <link rel="import" href="view-planning.html">
 <link rel="import" href="view-tracking.html">
 <link rel="import" href="shared-styles.html">
+<!-- import 3rd party libraries -->
+<link rel="import" href="../lib/sugar.html">
+<link rel="import" href="../lib/moment.html">
+<link rel="import" href="../lib/turbo.html">
+<link rel="import" href="../lib/countdown.html">
+<link rel="import" href="../lib/intl.html">
+<link rel="import" href="../lib/webanimation.html">
 <dom-module id="view-index">
   <template>
     <style include="shared-styles">
@@ -157,7 +162,7 @@
       }
     </style>
     <app-location route="{{route}}"></app-location>
-    <app-route route="{{route}}" pattern="/:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
+    <app-route route="{{route}}" pattern="[[rootPattern]]:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
     <firebase-app name="smart-mes" auth-domain="smart-mes.firebaseapp.com" database-url="https://smart-mes.firebaseio.com" api-key="AIzaSyAPkuFs7jRmku7qiNGUkLk0nmtQCy0s3M0"
       storage-bucket="smart-mes.appspot.com" messaging-sender-id="253401775445"></firebase-app>
     <firebase-auth app-name="smart-mes" id="auth" user="{{user}}" online="[[online]]" on-error="handleError"></firebase-auth>
@@ -230,7 +235,7 @@
             </div>
           </app-toolbar>
         </app-header>
-       <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" selected-attribute="visible" role="main">
+        <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" selected-attribute="visible" role="main">
           <view-dashboard name="dashboard" route="{{subroute}}" hidden$="[[!authen]]"></view-dashboard>
           <view-setup name="setup" route="{{subroute}}" hidden$="[[!authen]]"></view-setup>
           <view-planning name="planning" route="{{subroute}}" hidden$="[[!authen]]"></view-planning>
@@ -244,60 +249,59 @@
     <iron-media-query query="min-width: 600px" query-matches="{{wideLayout}}"></iron-media-query>
   </template>
   <script>
-    Polymer({
-      is: 'view-index',
-      properties: {
-        notification: {
-          type: Boolean
-        },
-        page: {
-          type: String,
-          reflectToAttribute: true,
-          observer: '_pageChanged'
-        },
-        user: {
-          type: Object
-        },
-        statusKnown: {
-          type: Object
-        },
-        metadata: {
-          type: Object
-        },
-        wideLayout: {
-          type: Boolean,
-          value: false,
-          observer: '_onLayoutChange',
-        },
-      },
+    class ViewIndex extends Polymer.Element {
+      static get is() {
+        return 'view-index';
+      }
+      static get properties() {
+        return {
+          page: {
+            type: String,
+            reflectToAttribute: true,
+            observer: '_pageChanged'
+          },
+          wideLayout: {
+            type: Boolean,
+            value: false,
+            observer: '_onLayoutChange',
+          },
+          notification: Boolean,
+          user: Object,
+          statusKnown: Object,
+          metadata: Object
+        };
+      }
 
-      observers: [
-        '_routePageChanged(routeData.page)'
-      ],
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page)',
+        ];
+      }
 
-      listeners: {
-        'show-invalid-url-warning': '_showPage404'
-      },
+      static get behaviors() {
+        return [
+          Polymer.AppLocalizeBehavior,
+          Polymer.AppLanguageBehavior
+        ];
+      }
 
-      behaviors: [
-        Polymer.AppLocalizeBehavior,
-        Polymer.AppLanguageBehavior
-      ],
+      constructor() {
+        super();
 
-      created() {
-        // Custom elements polyfill safe way to indicate an element has been upgraded.
-        this.removeAttribute('unresolved');
-      },
+        // Get root pattern for app-route, for more info about `rootPath` see:
+        // https://www.polymer-project.org/2.0/docs/upgrade#urls-in-templates
+        this.rootPattern = (new URL(this.rootPath)).pathname;
+      }
 
       attached() {
-        if(!this.authen) {
+        if (!this.authen) {
           this.set('route.path', 'login');
         }
-        if(this.authen && this.get('route.path') === '/login') {
+        if (this.authen && this.get('route.path') === '/login') {
           this.set('route.path', '/');
         }
         this.loadResources(this.resolveUrl('../data/locales.json'));
-      },
+      }
 
       ready() {
         this.async(function () {
@@ -306,31 +310,31 @@
             this.set('route.path', '/');
           }
         });
-      },
+      }
 
       _onLayoutChange(wide) {
         const drawer = this.$.drawer;
         if (wide && drawer.opened) drawer.opened = false;
-      },
+      }
 
       _routePageChanged(page) {
         if (page === undefined) return;
         if (!this.$.drawer.persistent) this.$.drawer.close();
-         this.page = page || 'dashboard';
-      },
+        this.page = page || 'dashboard';
+      }
 
       _pageChanged(page) {
         let resolvedPageUrl = this.resolveUrl('view-' + page + '.html');
-        this.importHref(
+        Polymeer.importHref(
           resolvedPageUrl,
           null,
           this._showPage404.bind(this),
           true);
-      },
+      }
 
       _showPage404() {
         this.page = '404';
-      },
+      }
 
       // Signout Action
       _logout() {
@@ -338,8 +342,8 @@
           .then(() => {
             this.authen = false;
             //redirect to login page    
-            this.async(function() {   
-                this.set('route.path', 'login');
+            this.async(function () {
+              this.set('route.path', 'login');
             }, 500);
             console.info("Logout successful");
           })
@@ -347,16 +351,14 @@
             console.info("%cAuthenticate Failed: " + error.code, "color: crimson;");
             alert("Authenticate Failed: " + error.message + " Please try again.");
           });
-      },
+      }
 
       // Redirect to Register page
       _register() {
         this.page = 'register';
         this.set('route.path', 'register');
-      },
+      }
       /*
-
-
                <form on-submit="signInWithEmailAndPassword">
                 <input value="{{email::input}}" type="email" placeholder="Email">
                 <input value="{{password::input}}" type="password" placeholder="Password">
@@ -364,8 +366,7 @@
               </form>
       */
 
-    });
-    //  window.customerElements.define(ViewIndex.is, ViewIndex);
+    }
     const config = {
       apiKey: "AIzaSyAPkuFs7jRmku7qiNGUkLk0nmtQCy0s3M0",
       authDomain: "smart-mes.firebaseapp.com",
@@ -374,19 +375,6 @@
       messagingSenderId: "253401775445",
     };
     firebase.initializeApp(config);
+    window.customerElements.define('view-index', ViewIndex);
   </script>
-  <!-- Librart for coundown in simulator -->
-  <script src="../bower_components/countdownjs/countdown.min.js"></script>
-  <!-- Library for parallel computations with GPGPU -->
-  <script src="../bower_components/turbojs/turbo.js"></script>
-  <!-- Library for working with native objects. -->
-  <script src="../bower_components/sugar/dist/sugar.min.js"></script>
-  <!-- Web animation pollyfill -->
-  <script src="../bower_components/web-animations-js/web-animations.min.js"></script>
-  <!-- Pollyfills for localize -->
-  <script src="../bower_components/intl/dist/Intl.js"></script>
-  <script src="../bower_components/intl/locale-data/jsonp/en.js"></script>
-  <script src="../bower_components/intl/locale-data/jsonp/th.js"></script>
-  <script src="../bower_components/intl/locale-data/jsonp/ja.js"></script>
-  <script src="../bower_components/intl/locale-data/jsonp/ru.js"></script>
 </dom-module>

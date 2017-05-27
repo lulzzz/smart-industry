@@ -38,8 +38,9 @@
         });
       }
     </script>
-    <!-- <script src="/bower_components/webcomponentsjs/webcomponents-loader.js"></script> -->
-    <script src="./node_modules/redux/dist/redux.js"></script>
+    <!-- Load webcomponents-loader.js to check and load any polyfills your browser needs -->
+    <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="node_modules/redux/dist/redux.js"></script>
     <link rel="import" href="src/view-index.html">
     <style>
         body {
@@ -180,7 +181,7 @@
 </head>
 
 <body>
-    <view-index unresolved>
+    <view-index>
         <div class="showbox">
             <div class="loader">
                 <svg class="circular" viewBox="25 25 50 50">
@@ -189,28 +190,13 @@
             </div>
         </div>
     </view-index>
-    <script>
-        window.performance && performance.mark && performance.mark('index.html');
-        (function () {
-            'use strict';
-            if ('registerElement' in document &&
-                'import' in document.createElement('link') &&
-                'content' in document.createElement('template')) {} else {
-                // polyfill the platform!
-                var e = document.createElement('script');
-                e.src = 'bower_components/webcomponentsjs/webcomponents-lite.min.js';
-                document.body.appendChild(e);
-                console.info("%cBrowser is using polyfill the platform.", "color: crimson;");
-            }
-        })();
-    </script>
     <noscript>
         Please enable JavaScript to view this website.
     </noscript>
     <vaadin-license-box style="outline: none; z-index: 112; box-sizing: border-box; max-height: 1320px; max-width: 265.844px;">
         <div id="licenseBoxContent" class="unlicensed style-scope vaadin-license-box">Trial Version</div>
     </vaadin-license-box>
-    <script async="" src="https://www.google-analytics.com/analytics.js"></script>
+    <script async src="https://www.google-analytics.com/analytics.js"></script>
     <script>
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;

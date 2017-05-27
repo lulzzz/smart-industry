@@ -122,13 +122,13 @@
             <div class="login-header">
               <h1>User Login</h1>
             </div>
-            <paper-input class="login-input" name="e-mail" id="email" type="email" maxlength="50" auto-complete="email" placeholder="E-mail"
+            <paper-input class="login-input" name="e-mail" id="email" type="email" value="{{email::input}}" maxlength="50" auto-complete="email" placeholder="E-mail"
               autofocus auto-validate></paper-input>
-            <paper-input class="login-input" name="password" id="passwd" type="password" maxlength="50" auto-complete="current-password"
+            <paper-input class="login-input" name="password" id="passwd" type="password" value="{{password::input}}" maxlength="50" auto-complete="current-password"
               placeholder="Password" auto-validate></paper-input>
             <iron-a11y-keys id="a11y" target="[[target]]" keys="enter" on-keys-pressed="_login"></iron-a11y-keys>
             <paper-checkbox class="login-remember" tabindex="0" name="remember" checked="{{remember}}" noink>Keep me signed in</paper-checkbox>
-            <paper-button raised class="chilli authen-btn" on-tap="_login" role="button" hidden$="[[user]]">Log in</paper-button>
+            <paper-button raised class="chilli authen-btn" on-tap="_login" role="button">Log in</paper-button>
             <a href="javascript:void(0);" on-tap="_showReset" class="login-forget">Can’t access your account?</a>
           </form>
           <form hidden$="[[reset]]" class="reset-form" on-submit="_resetPassword">
@@ -148,6 +148,14 @@
     Polymer({
       is: 'view-login',
       properties: {
+        email: {
+          type: String,
+          notify: true
+        },
+        password: {
+          type: String,
+          notify: true
+        },
         reset: {
           type: Boolean,
           value: true,
@@ -159,11 +167,11 @@
           notify: true
         },
         target: {
-          type: Object,
-          value: function () {
-            return this.$.passwd;
-          }
+          type: Object
         },
+      },
+      ready() {
+          this.target = this.$.passwd;
       },
       _login() {
         if (this.$.email !== "" || this.$.passwd !== "") {
