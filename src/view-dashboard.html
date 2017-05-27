@@ -16,7 +16,6 @@
         --app-grid-item-height: 50%;
       }
     </style>
-    <app-localstorage-document key="lang" data="{{language}}"></app-localstorage-document>
     <app-header-layout fullbleed has-scrolling-region class="subheader-layout">
       <app-header fixed shadow>
         <app-toolbar role="toolbar" sticky class="tabs-bar">
@@ -36,7 +35,7 @@
     </app-header-layout>
   </template>
   <script>
-    class ViewDashboard extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior], Polymer.Element) {
+    class ViewDashboard extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior], Polymer.Element) {
       static get is() {  return 'view-dashboard'; }
 
       static get properties() {

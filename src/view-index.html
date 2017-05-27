@@ -31,7 +31,6 @@
 <link rel="import" href="../bower_components/paper-item/paper-item-body.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-menu-button/paper-menu-button.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
@@ -78,6 +77,10 @@
         --paper-menu-button-dropdown: {
           margin-top: 50px;
         }
+      }
+
+       app-drawer-layout:not([narrow]) [drawer-toggle] {
+        display: none;
       }
 
       .menu-item {
@@ -165,13 +168,14 @@
     <app-route route="{{route}}" pattern="[[rootPattern]]:page" data="{{routeData}}" tail="{{subroute}}"></app-route>
     <firebase-app name="smart-mes" auth-domain="smart-mes.firebaseapp.com" database-url="https://smart-mes.firebaseio.com" api-key="AIzaSyAPkuFs7jRmku7qiNGUkLk0nmtQCy0s3M0"
       storage-bucket="smart-mes.appspot.com" messaging-sender-id="253401775445"></firebase-app>
-    <firebase-auth app-name="smart-mes" id="auth" user="{{user}}" online="[[online]]" on-error="handleError"></firebase-auth>
+    <firebase-auth app-name="smart-mes" id="auth" user="{{user}}" on-error="handleError"></firebase-auth>
     <firebase-document app-name="smart-mes" id="factoryInformation" path="/metadata" data="{{metadata}}"></firebase-document>
     <firebase-document app-name="smart-mes" id="appLanguage" path="/metadata/appLanguage" data="{{language}}"></firebase-document>
     <firebase-document app-name="smart-mes" id="appNotification" path="/metadata/appNotification" data="{{notification}}"></firebase-document>
     <app-localstorage-document key="lang" data="{{language}}"></app-localstorage-document>
     <app-localstorage-document key="authen" data="{{authen}}"></app-localstorage-document>
     <app-drawer-layout fullbleed>
+
       <app-drawer hidden$="[[!authen]]" id="drawer" role="menu" slot="drawer" swipe-open>
         <img class="logo" role="img" src="../images/logo/industrial.svg" title="Logo" alt="application logo">
         <h1 title="SMES" class="main-title">SMES</h1>
@@ -190,26 +194,28 @@
         <div class="center">
           <paper-button raised class="chilli authen-btn" on-tap="_logout" role="button" hidden$="[[!user]]">{{localize('logout-button')}}</paper-button>
         </div>
-        <dom-if if="[[authen]]">
+        <template is="dom-if" if="[[authen]]">
           <div class="profile" role="group">
-            <!-- <img s"tyle="width: 150px;" src="[[user.photoURL]]" alt="user photo"> -->
+            <!-- <img style="width: 150px;" src="[[user.photoURL]]" alt="user photo"> -->
             <p>Welcome "[[user.displayName]]" !!</p>
             <p>E-mail: [[user.email]]</p>
             <p>[[metadata.appName]]</p>
             <p>{{localize('version')}} [[metadata.appVersion]]</p>
             <p>{{localize('developed-by')}} [[metadata.appDeveloper]]</p>
-            <!-- [[route.path]] -->
+             [[route.path]] [[authen]] [[lang]]
           </div>
-        </dom-if>
+        </template>
       </app-drawer>
+
       <app-header-layout fullbleed has-scrolling-region>
-        <app-header hidden$="[[!authen]]" slot="header" role="rowheader" condenses fixed>
+         <template is="dom-if" if="[[authen]]"> 
+        <app-header hidden$="[[!authen]]" id="header" slot="header" role="rowheader" condenses fixed>
           <app-toolbar role="toolbar">
             <paper-icon-button icon="vaadin:menu" alt="menu" aria-label="sidebar menu" drawer-toggle></paper-icon-button>
             <span class="title" main-title>{{localize(page)}}</span>
             <paper-menu-button dynamic-align>
               <paper-icon-button icon="vaadin:user" class="account-btn dropdown-trigger" alt="account"></paper-icon-button>
-              <paper-menu class="dropdown-content">
+              <paper-listbox class="dropdown-content">
                 <a href="https://github.com/jukbot/smart-industry" target="_blank">
                   <paper-icon-item class="menu-item" name="help">
                     <iron-icon icon="vaadin:question-circle" alt="help" item-icon></iron-icon>
@@ -228,13 +234,14 @@
                   <iron-icon icon="vaadin:sign-out" alt="logout" item-icon></iron-icon>
                   {{localize('logout')}}
                 </paper-icon-item>
-              </paper-menu>
+              </paper-listbox>
             </paper-menu-button>
             <div hidden$="[[!user]]">
               <p class="display-name" hidden$="{{!wideLayout}}">[[user.displayName]]</p>
             </div>
           </app-toolbar>
         </app-header>
+         </template>
         <iron-pages selected="[[page]]" attr-for-selected="name" fallback-selection="404" selected-attribute="visible" role="main">
           <view-dashboard name="dashboard" route="{{subroute}}" hidden$="[[!authen]]"></view-dashboard>
           <view-setup name="setup" route="{{subroute}}" hidden$="[[!authen]]"></view-setup>
@@ -272,6 +279,15 @@
             reflectToAttribute: true,
             observer: '_pageChanged',
           },
+          authen: {
+          type: Boolean,
+          notify: true
+         },
+          wideLayout: {
+          type: Boolean,
+          value: false,
+          observer: '_onLayoutChange',
+        },
           notification: Boolean,
           user: Object,
           statusKnown: Object,
@@ -291,7 +307,6 @@
 
       constructor() {
         super();
-
         // Get root pattern for app-route, for more info about `rootPath` see:
         // https://www.polymer-project.org/2.0/docs/upgrade#urls-in-templates
         this.rootPattern = (new URL(this.rootPath)).pathname;
@@ -299,15 +314,18 @@
 
       attached() {
         super.attached();
-        if (!this.authen) {
-          this.set('route.path', 'login');
-        }
-        if (this.authen && this.get('route.path') === '/login') {
-          this.set('route.path', '/');
-        }
         this.loadResources(this.resolveUrl('../data/locales.json'));
+        if (localStorage.getItem("authen") === false) {
+          this.set('route.path', 'login');
+        } 
+        if (!this.user) {
+          this.set('route.path', 'login');
+        } 
+        if (localStorage.getItem("authen") === true && this.route.path == '/login') {
+          this.set('route.path', '/');
+          console.log('must route');
+        }
       }
-
       _onLayoutChange(wide) {
         const drawer = this.$.drawer;
         if (wide && drawer.opened) drawer.opened = false;
@@ -315,7 +333,11 @@
 
       _routePageChanged(page) {
         if (page === undefined) return;
-        if (!this.$.drawer.persistent) this.$.drawer.close();
+         // Close a non-persistent drawer when the page & route are changed.
+        if (!this.$.drawer.persistent) {
+          this.$.drawer.close();
+        }
+        
         this.page = page || 'dashboard';
       }
 
@@ -337,10 +359,7 @@
         this.$.auth.signOut()
           .then(() => {
             this.authen = false;
-            //redirect to login page    
-            this.async(()=> {
-              this.set('route.path', 'login');
-            }, 500);
+            this.set('route.path', 'login');
             console.info("Logout successful");
           })
           .catch((error) => {

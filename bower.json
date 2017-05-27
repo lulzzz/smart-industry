@@ -6,7 +6,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "polymer": "polymer/polymer#^2.0.1",
-    "webcomponentsjs": "webcomponentsjs/webcomponentsjs#^v1.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^v1.0.0",
     "polymer-redux": "polymer-2",
     "polymerfire": "firebase/polymerfire#^2.0.1",
     "app-layout": "PolymerElements/app-layout#^2.0.0",
@@ -39,7 +39,6 @@
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.0",
     "paper-card": "PolymerElements/paper-card#^2.0.0",
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
-    "paper-menu": "PolymerElements/paper-menu#^v1.3.0",
     "paper-item": "PolymerElements/paper-item##^2.0.0",
     "paper-button": "PolymerElements/paper-button#^2.0.0",
     "paper-input": "PolymerElements/paper-input#^2.0.0",
@@ -68,5 +67,14 @@
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0"
   },
-  "private": true
+  "private": true,
+  "resolutions": {
+    "iron-localstorage": "^2.0.0",
+    "iron-flex-layout": "1 - 2",
+    "iron-ajax": "1 - 2",
+    "iron-iconset-svg": "1 - 2",
+    "iron-resizable-behavior": "1 - 2",
+    "iron-icon": "1 - 2",
+    "iron-meta": "1 - 2"
+  }
 }

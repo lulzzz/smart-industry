@@ -169,7 +169,6 @@
         },
         authen: {
           type: Boolean,
-          value: false,
           notify: true
         },
         target: {
@@ -181,6 +180,9 @@
       attached() {
         super.attached();
         this.loadResources(this.resolveUrl('../data/locales.json'));
+        if (this.authen && this.get('route.path') === '/login') {
+          this.set('route.path', '/');
+        }
       }
 
       ready() {
@@ -221,7 +223,7 @@
           let resetEmail = this.$.resetEmail.value;
           this.$.auth.sendPasswordResetEmail(resetEmail)
             .then((response) => {
-              alert("Reset password has been send to your email.")
+              alert("Reset password has been send to your email.");
             })
             .catch((error) => {
               console.info("%cAuthenticate Failed: " + error.code, "color: crimson;");

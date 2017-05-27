@@ -36,7 +36,7 @@
                 flex: 1;
                 text-align: center;
             }
-            
+
             @media only screen and (max-width: 480px) {
                 body {
                     margin: 10px auto;
@@ -59,11 +59,30 @@
         </div>
     </template>
     <script>
-        class View404 extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior], Polymer.Element)  {
+        class View404 extends Polymer.mixinBehaviors([Polymer.AppLocalizeBehavior, Polymer.AppLanguageBehavior],
+            Polymer.Element) {
             static get is() {
                 return 'view-404';
             }
+            static get properties() {
+                return {
+                    language: {
+                        type: Object,
+                        notify: true,
+                        value() {
+                            if (localStorage.getItem("lang") != null) {
+                                return localStorage.getItem("lang");
+                            } else if (localStorage.getItem("lang") == null) {
+                                return "en";
+                            } else {
+                                return this.language;
+                            }
+                        }
+                    },
+                }
+            }
             attached() {
+                super.attached();
                 this.loadResources(this.resolveUrl('../data/locales.json'));
             }
         }
