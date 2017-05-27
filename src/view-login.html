@@ -1,4 +1,4 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
@@ -145,9 +145,12 @@
     </section>
   </template>
   <script>
-    Polymer({
-      is: 'view-login',
-      properties: {
+    class ViewLogin extends Polymer.Element {
+
+      static get is() { return 'view-login'; }
+
+      static get properties() {
+        return {
         email: {
           type: String,
           notify: true
@@ -169,10 +172,13 @@
         target: {
           type: Object
         },
-      },
+       };
+      }
+
       ready() {
           this.target = this.$.passwd;
-      },
+      }
+
       _login() {
         if (this.$.email !== "" || this.$.passwd !== "") {
           let email = this.$.email.value;
@@ -191,15 +197,15 @@
         } else {
           alert("Email or Password cannot leave blank");
         }
-      },
+      }
 
       _showReset() {
         this.reset = false;
-      },
+      }
 
       _hideReset() {
         this.reset = true;
-      },
+      }
 
       _resetPassword() {
         if (this.$.resetEmail !== "") {
@@ -215,11 +221,12 @@
         } else {
           alert("Email cannot leave blank");
         }
-      },
+      }
 
       handleError(e) {
         console.info("%cAuthenticate Error: " + e.message, "color: crimson;");
-      },
-    });
+      }
+    }
+     window.customElements.define(ViewLogin.is, ViewLogin);
   </script>
 </dom-module>

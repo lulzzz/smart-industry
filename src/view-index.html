@@ -268,7 +268,10 @@
           notification: Boolean,
           user: Object,
           statusKnown: Object,
-          metadata: Object
+          metadata: Object,
+          rootPattern: String,
+          routeData: Object,
+          subroute: String,
         };
       }
 
@@ -375,6 +378,6 @@
       messagingSenderId: "253401775445",
     };
     firebase.initializeApp(config);
-    window.customerElements.define('view-index', ViewIndex);
+    window.customerElements.define(ViewIndex.is, ViewIndex);
   </script>
 </dom-module>

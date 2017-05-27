@@ -1,5 +1,6 @@
-<link rel="import" href="../bower_components/polymer/polymer.html">
-<link rel="import" href="view-index.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/app-localize-behavior/app-localize-behavior.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="shared-styles.html">
 <link rel="import" href="app-language-behavior.html">
 <dom-module id="view-404">
@@ -35,13 +36,7 @@
                 flex: 1;
                 text-align: center;
             }
-
-            @media screen and (max-width: 1024px) {
-                 :host {
-                    flex-basis: calc( var(--downloads-card-width) + 2 * var(--downloads-card-margin));
-                }
-            }
-
+            
             @media only screen and (max-width: 480px) {
                 body {
                     margin: 10px auto;
@@ -52,7 +47,6 @@
                 .container {
                     height: 40em;
                 }
-
             }
         </style>
         <app-localstorage-document key="lang" data="{{language}}"></app-localstorage-document>
@@ -61,19 +55,24 @@
                 <h1>{{localize('page-not-found')}}</h1>
                 <p>{{localize('page-does-not-exist')}} </p><br>
                 <a href="/" title="Return to home">{{localize('return-to-home')}}</a>
-                </div>
+            </div>
         </div>
     </template>
     <script>
-        Polymer({
-            is: 'view-404',
-            behaviors: [
-                Polymer.AppLocalizeBehavior,
-                Polymer.AppLanguageBehavior
-            ],
-            attached: function () {
+        class View404 extends Polymer.Element {
+            static get is() {
+                return 'view-404';
+            }
+            static get behaviors() {
+                return [
+                    Polymer.AppLocalizeBehavior,
+                    Polymer.AppLanguageBehavior
+                ];
+            }
+            attached() {
                 this.loadResources(this.resolveUrl('../data/locales.json'));
-            },
-        });
+            }
+        }
+        window.customElements.define(View404.is, View404);
     </script>
 </dom-module>
